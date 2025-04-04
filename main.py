@@ -57,10 +57,6 @@ if __name__ == "__main__":
                 print(f"Sending: {send_msg}")
                 teensy.write(send_msg.encode("utf-8"))
                 print(f"wrote {send_msg}")
-                send_msg = f"ss"
-                print(f"Sending: {send_msg}")
-                teensy.write(send_msg.encode("utf-8"))
-                print(f"wrote {send_msg}")
         except KeyboardInterrupt:
             send_msg = f"ss"
             print(f"Sending Shutdown: {send_msg}")
