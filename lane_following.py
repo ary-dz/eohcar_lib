@@ -96,22 +96,7 @@ def get_controls(frame):
         cv2.imshow('ROI Points', roi_debug_frame)  # For debugging, show the ROI points
         
         poly_fit = process_frame(frame)
-        steering_command = calculate_control(poly_fit)
-        velocity_command = 0.3 if abs(steering_command) >= 0.2 else 1.0 # 99% sure we can get variable velocity with the controller
-    
-# Main processing loop
-# cap = cv2.VideoCapture("http://172.16.115.30:5000/camera")  # Use camera index (0 for default)
-if __name__ == "__main__":
-    while True:
-        # ret, frame = cap.read()
-        # if not ret:
-        #     break
-        frame = cv2.imread('/Users/georgehuber/Downloads/eoh_test_real/3.png')  # For testing, replace with actual camera capture
-        steering_command, velocity_command = get_controls(frame)
-        print(f"Steering Command: {steering_command:.2f}")
-        print(f"Velocity Command: {velocity_command:.2f}")
-        
-        # Display processed frame with detected line overlay (for visualization purposes)
+                # Display processed frame with detected line overlay (for visualization purposes)
         if poly_fit is not None:
             a, b, c = poly_fit
             y_vals = np.linspace(0, CAMERA_HEIGHT - 1, num=100).astype(int)
@@ -126,7 +111,21 @@ if __name__ == "__main__":
             cv2.circle(warped, (int(waypoint), CAMERA_HEIGHT//4), 5, (255, 0, 0), -1)
             cv2.imshow('Detected Curve', warped)  # Curve overlay
         
-        
+        steering_command = calculate_control(poly_fit)
+        velocity_command = 0.3 if abs(steering_command) >= 0.2 else 1.0 # 99% sure we can get variable velocity with the controller
+        return steering_command, velocity_command, poly_fit
+# Main processing loop
+# cap = cv2.VideoCapture("http://172.16.115.30:5000/camera")  # Use camera index (0 for default)
+if __name__ == "__main__":
+    while True:
+        # ret, frame = cap.read()
+        # if not ret:
+        #     break
+        frame = cv2.imread('/Users/georgehuber/Downloads/eoh_test_real/3.png')  # For testing, replace with actual camera capture
+        steering_command, velocity_command,poly_fit = get_controls(frame)
+        print(f"Steering Command: {steering_command:.2f}")
+        print(f"Velocity Command: {velocity_command:.2f}")
+         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
