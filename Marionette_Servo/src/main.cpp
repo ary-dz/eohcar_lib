@@ -59,12 +59,12 @@ void loop() {
     }
 
     case 'b': {
-      speed_pos = 90;
+      speed_pos = 45;
       break;
     }
 
     case 's': {
-      speed_pos = 180;
+      speed_pos = 90;
       break;
     }
 
@@ -79,12 +79,12 @@ void loop() {
     }
 
     case 'r': {
-      steer_pos = 90;
+      steer_pos = 45;
       break;
     }
 
     case 's': {
-      steer_pos = 180;
+      steer_pos = 90;
       break;
     }
 
