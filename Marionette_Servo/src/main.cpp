@@ -39,18 +39,18 @@ void loop() {
       - 'r' - Right
       - 's' - Straight
   */
-  if (Serial.available()) {
-    char recv_msg[3];
-    Serial.readBytes(recv_msg, 2);
-    recv_msg[2] = '\0';
-    steering_state = recv_msg[1];
-    speed_state = recv_msg[0];
-  } else {
+  while (!Serial.available());
+  char recv_msg[3];
+  Serial.readBytes(recv_msg, 2);
+  recv_msg[2] = '\0';
+  steering_state = recv_msg[1];
+  speed_state = recv_msg[0];
+  // } else {
     // Error handling
-  }
+  // }
 
-  steering_servo.write(steer_pos);  
-  speed_servo.write(speed_pos);
+  
+
 
   switch (speed_state) {
     case 'f': {
@@ -91,6 +91,20 @@ void loop() {
     default:
       break;
   }
+
+  steering_servo.write(steer_pos);  
+  speed_servo.write(speed_pos);
+  delay(400);
+  steering_servo.write(90);  
+  speed_servo.write(90);
+  steer_pos = 90;
+  speed_pos = 90;
+  delay(300);
+  if (Serial.available()) {
+    char clearing_thing[16384];
+    Serial.readBytes(clearing_thing, 16384);
+  }
+  
 
   #endif
 

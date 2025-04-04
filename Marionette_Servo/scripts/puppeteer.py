@@ -29,13 +29,13 @@ if __name__ == "__main__":
         # time.sleep(2)
         
         # User input version
-        # send_msg = input("Desired State: ")
-        send_msg = "fr"
+        send_msg = input("Desired State: ")
+        # send_msg = "fr"
         teensy.write(send_msg.encode("utf-8"))
-        time.sleep(tap_duration)
-        send_msg = "ss"
-        teensy.write(send_msg.encode("utf-8"))
-        time.sleep(delay)
+        # time.sleep(tap_duration)
+        # send_msg = "ss"
+        # teensy.write(send_msg.encode("utf-8"))
+        # time.sleep(delay)
         # print(f"wrote {send_msg}")
         # time.sleep(2)
 
