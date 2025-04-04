@@ -70,7 +70,7 @@ def calculate_control(poly_fit):
         predicted_x = a * (CAMERA_HEIGHT//4)**2 + b * (CAMERA_HEIGHT//4) + c
         
         # Calculate error from center of the frame
-        image_center_x = CAMERA_WIDTH // 2
+        image_center_x = a * (CAMERA_HEIGHT)**2 + b * (CAMERA_HEIGHT) + c
         print(f"Predicted X: {predicted_x}, Image Center X: {image_center_x}")
         error = predicted_x - image_center_x
         
@@ -84,36 +84,39 @@ def calculate_control(poly_fit):
     return 0  # No adjustment if no line detected
 
 def get_controls(frame):
-        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        frame = cv2.resize(frame, (CAMERA_WIDTH, CAMERA_HEIGHT))  # Resize to match camera dimensions
+    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    frame = cv2.resize(frame, (CAMERA_WIDTH, CAMERA_HEIGHT))  # Resize to match camera dimensions
+    
+    warped = cv2.warpPerspective(frame, M, (CAMERA_WIDTH, CAMERA_HEIGHT))
+    
+    #plot the ROI_SRC points on frame
+    roi_debug_frame = frame.copy()
+    for point in ROI_SRC:
+        cv2.circle(roi_debug_frame, tuple(point.astype(int)), 5, (0, 255, 0), -1)
+    cv2.imshow('ROI Points', roi_debug_frame)  # For debugging, show the ROI points
+    
+    poly_fit = process_frame(frame)
+            # Display processed frame with detected line overlay (for visualization purposes)
+    if poly_fit is not None:
+        a, b, c = poly_fit
+        y_vals = np.linspace(0, CAMERA_HEIGHT - 1, num=100).astype(int)
+        x_vals = (a * y_vals**2 + b * y_vals + c).astype(int)
         
-        warped = cv2.warpPerspective(frame, M, (CAMERA_WIDTH, CAMERA_HEIGHT))
-        
-        #plot the ROI_SRC points on frame
-        roi_debug_frame = frame.copy()
-        for point in ROI_SRC:
-            cv2.circle(roi_debug_frame, tuple(point.astype(int)), 5, (0, 255, 0), -1)
-        cv2.imshow('ROI Points', roi_debug_frame)  # For debugging, show the ROI points
-        
-        poly_fit = process_frame(frame)
-                # Display processed frame with detected line overlay (for visualization purposes)
-        if poly_fit is not None:
-            a, b, c = poly_fit
-            y_vals = np.linspace(0, CAMERA_HEIGHT - 1, num=100).astype(int)
-            x_vals = (a * y_vals**2 + b * y_vals + c).astype(int)
-            
-            for i in range(len(y_vals) - 1):
-                cv2.line(warped,
-                        (x_vals[i], y_vals[i]),
-                        (x_vals[i + 1], y_vals[i + 1]),
-                        color=(0, 255, 0), thickness=3)
-            waypoint = a * (CAMERA_HEIGHT//4)**2 + b * (CAMERA_HEIGHT//4) + c
-            cv2.circle(warped, (int(waypoint), CAMERA_HEIGHT//4), 5, (255, 0, 0), -1)
-            cv2.imshow('Detected Curve', warped)  # Curve overlay
-        
-        steering_command = calculate_control(poly_fit)
-        velocity_command = 0.3 if abs(steering_command) >= 0.2 else 1.0 # 99% sure we can get variable velocity with the controller
-        return steering_command, velocity_command, poly_fit
+        for i in range(len(y_vals) - 1):
+            cv2.line(warped,
+                    (x_vals[i], y_vals[i]),
+                    (x_vals[i + 1], y_vals[i + 1]),
+                    color=(0, 255, 0), thickness=3)
+        waypoint = a * (CAMERA_HEIGHT//4)**2 + b * (CAMERA_HEIGHT//4) + c
+        cv2.circle(warped, (int(waypoint), CAMERA_HEIGHT//4), 5, (255, 0, 0), -1)
+        cv2.imshow('Detected Curve', warped)  # Curve overlay
+    
+    steering_command = calculate_control(poly_fit)
+    velocity_command = 0.3 if abs(steering_command) >= 0.2 else 1.0 # 99% sure we can get variable velocity with the controller
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.destroyAllWindows()
+    return steering_command, velocity_command, poly_fit
 # Main processing loop
 # cap = cv2.VideoCapture("http://172.16.115.30:5000/camera")  # Use camera index (0 for default)
 if __name__ == "__main__":
@@ -121,7 +124,7 @@ if __name__ == "__main__":
         # ret, frame = cap.read()
         # if not ret:
         #     break
-        frame = cv2.imread('/Users/georgehuber/Downloads/eoh_test_real/3.png')  # For testing, replace with actual camera capture
+        frame = cv2.imread('/Users/georgehuber/Downloads/eoh_test_real/5.png')  # For testing, replace with actual camera capture
         steering_command, velocity_command,poly_fit = get_controls(frame)
         print(f"Steering Command: {steering_command:.2f}")
         print(f"Velocity Command: {velocity_command:.2f}")
