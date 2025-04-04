@@ -54,12 +54,12 @@ void loop() {
 
   switch (speed_state) {
     case 'f': {
-      speed_pos = 0;
+      speed_pos = 45;
       break;
     }
 
     case 'b': {
-      speed_pos = 45;
+      speed_pos = 125;
       break;
     }
 
@@ -74,12 +74,12 @@ void loop() {
 
   switch (steering_state) {
     case 'l': {
-      steer_pos = 0;
+      steer_pos = 55;
       break;
     }
 
     case 'r': {
-      steer_pos = 45;
+      steer_pos = 125;
       break;
     }
 
